@@ -10,10 +10,10 @@ module cpu_tb();
     always #5 clk = ~clk;   // 100 MHz clock
 
     initial begin
-        $dumpfile("test/cpu_tb.vcd");
+        $dumpfile("build/cpu_tb.vcd");
         $dumpvars(0, cpu_tb);
         #20 reset = 0;
-        #5000 $stop;
+        #5000 $finish;
     end
 endmodule
 

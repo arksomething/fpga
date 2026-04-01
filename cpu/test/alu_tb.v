@@ -49,7 +49,7 @@ module alu_tb;
 
     initial begin
         // Setup waveform dump
-        $dumpfile("test/alu_tb.vcd");
+        $dumpfile("build/alu_tb.vcd");
         $dumpvars(0, alu_tb);
 
         $display("========================================");

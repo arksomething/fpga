@@ -1,0 +1,11 @@
+# Build and simulation artifacts
+build/
+**/build/
+*.vcd
+*.vvp
+
+# Gowin generated implementation artifacts
+**/impl/
+
+# Editor/system noise
+.DS_Store
