@@ -1,0 +1,25 @@
+{
+  "files.associations": {
+    "*.v": "systemverilog",
+    "*.vh": "systemverilog",
+    "*.sv": "systemverilog",
+    "*.svh": "systemverilog"
+  },
+  "systemverilog.includeIndexing": [
+    "**/*.{v,vh,sv,svh}"
+  ],
+  "systemverilog.excludeIndexing": [
+    "**/.git/**",
+    "**/.cursor/**",
+    "**/.vscode/**",
+    "**/*.swp"
+  ],
+  "systemverilog.linter": "iverilog",
+  "systemverilog.launchConfiguration": "iverilog -g2012 -t null",
+  "systemverilog.lintOnUnsaved": true,
+  "systemverilog.disableLinting": false,
+  "systemverilog.disableHoverProvider": false,
+  "systemverilog.disableCompletionProvider": false,
+  "systemverilog.disableSignatureHelpProvider": false,
+  "verilog.linting.linter": "none"
+}

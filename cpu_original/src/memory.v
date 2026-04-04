@@ -13,12 +13,16 @@ module memory (
         $readmemh("program.hex", mem);
     end
 
-    // synchronous read + write
     always @(posedge clk) begin
         if (memory_write)
             mem[address] <= data_in;
+    end
 
+    // Combinational read so fetch can latch Mem[PC] in the same cycle as address.
+    always @(*) begin
         if (memory_read)
-            data_out <= mem[address];
+            data_out = mem[address];
+        else
+            data_out = 16'h0000;
     end
 endmodule

@@ -22,6 +22,7 @@ module cpu_top (
     wire       is_mov;
     wire [1:0] write_data_sel;
 
+    wire       fetch; // S_FETCH: latch insn from mem, advance PC (unless branch)
     wire       alu_zero;
 
     // ----------------------------------------------------
@@ -29,9 +30,13 @@ module cpu_top (
     // ----------------------------------------------------
     wire [15:0] rf_read_data1;
     wire [15:0] rf_read_data2;
+    wire [15:0] rf_pc_read_data;
     wire [15:0] alu_result;
 
     reg  [15:0] write_data;
+
+    // During FETCH, decode the word at mem[PC]; IR still holds prior insn until latch.
+    wire [15:0] cu_instruction = fetch ? mem_data : ir;
 
     // ----------------------------------------------------
     // INSTRUCTION MEMORY
@@ -50,7 +55,8 @@ module cpu_top (
     // ----------------------------------------------------
     cu control_unit (
         .clk(clk),
-        .instruction(ir),
+        .reset(reset),
+        .instruction(cu_instruction),
         .alu_zero(alu_zero),
 
         .read_addr1(rf_read1),
@@ -61,7 +67,8 @@ module cpu_top (
         .pc_write(pc_write),
         .ir_write(),   // unused
         .is_mov(is_mov),
-        .write_data_sel(write_data_sel)
+        .write_data_sel(write_data_sel),
+        .fetch(fetch)
     );
 
     // ----------------------------------------------------
@@ -71,11 +78,13 @@ module cpu_top (
         .clk(clk),
         .read_addr1(rf_read1),
         .read_addr2(rf_read2),
+        .pc_read_addr(ir[11:9]),
         .write_addr(rf_write),
         .write_data(write_data),
         .write_enable(rf_write_en),
         .read_data1(rf_read_data1),
-        .read_data2(rf_read_data2)
+        .read_data2(rf_read_data2),
+        .pc_read_data(rf_pc_read_data)
     );
 
     // ----------------------------------------------------
@@ -110,22 +119,20 @@ module cpu_top (
 
     // ----------------------------------------------------
     // FETCH + PC UPDATE + IR LATCH
+    // CU fetch=1 only in S_FETCH: one insn every two cycles; IR stable in EXEC (LDI imm).
     // ----------------------------------------------------
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             pc <= 8'b0;
             ir <= 16'b0;
         end else begin
-            // latch instruction from memory into IR
-            ir <= mem_data;
+            if (fetch)
+                ir <= mem_data;
 
-            // PC update
-            if (pc_write) begin
-                // CU signals top to load target from rf_read_data1
-                pc <= rf_read_data1[7:0];
-            end else begin
+            if (pc_write)
+                pc <= rf_pc_read_data[7:0];
+            else if (fetch)
                 pc <= pc + 1;
-            end
         end
     end
 

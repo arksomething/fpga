@@ -14,9 +14,9 @@ module cpu_program_smoke_tb;
     initial begin
         integer i;
 
-        // Initialize all instructions to NOP.
+        // Padding must not use 16'h0000 — opcode 4'b0000 is ADD (see cu.v).
         for (i = 0; i < 256; i = i + 1)
-            dut.instr_mem.mem[i] = 16'h0000;
+            dut.instr_mem.mem[i] = 16'hE000; // unused opcode → no RF write / no branch
 
         // Program:
         //   r1 = 5
