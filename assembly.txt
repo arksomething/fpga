@@ -1,0 +1,15 @@
+; Iterative fibonacci: n in r1, result in r0 (fib(7) == 13)
+LDI r1 7
+LDI r2 0
+LDI r3 1
+LDI r4 1
+.LOOP
+CMPLT r6 r4 r1
+BZ r6 EXIT
+ADD r5 r2 r3
+MOV r2 r3
+MOV r3 r5
+ADDI r4 r4 1
+BRA LOOP
+.EXIT
+MOV r0 r3

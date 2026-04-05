@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$ROOT_DIR/.." && pwd)"
 BUILD_DIR="$ROOT_DIR/build"
 
 mkdir -p "$BUILD_DIR"
@@ -16,6 +17,8 @@ tests=(
     cpu_edge_cases_tb
     cpu_program_smoke_tb
     cpu_call_stack_tb
+    cpu_fib_iterative_tb
+    cpu_fib_recursive_tb
 )
 
 for test_name in "${tests[@]}"; do
@@ -34,5 +37,20 @@ for test_name in "${tests[@]}"; do
         vvp "$test_name.out"
     )
 done
+
+echo "==> assembler -> program.hex -> cpu_asm_fib_e2e_tb"
+python3 "$REPO_ROOT/assembler/assembler.py"
+iverilog -g2012 \
+    -o "$BUILD_DIR/cpu_asm_fib_e2e_tb.out" \
+    "$ROOT_DIR/test/cpu_asm_fib_e2e_tb.v" \
+    "$ROOT_DIR/cpu.v" \
+    "$ROOT_DIR/cu.v" \
+    "$ROOT_DIR/register.v" \
+    "$ROOT_DIR/memory.v" \
+    "$ROOT_DIR/alu.v"
+(
+    cd "$BUILD_DIR"
+    vvp cpu_asm_fib_e2e_tb.out
+)
 
 echo "All CPU tests passed."
