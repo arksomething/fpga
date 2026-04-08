@@ -13,6 +13,7 @@ module cpu_edge_cases_tb;
     localparam [3:0] OP_BNZ   = 4'b1011;
     localparam [3:0] OP_LOAD  = 4'b0110;
     localparam [3:0] OP_CMPEQ = 4'b1000;
+    localparam [3:0] OP_ADDI  = 4'b1010;
     localparam [3:0] OP_LDI   = 4'b1100;
 
     cpu dut (
@@ -194,6 +195,17 @@ module cpu_edge_cases_tb;
         report_case(
             "LDI forwards into JMP",
             (dut.register_file.r[1] == 16'd4) && (dut.register_file.r[0] == 16'd42)
+        );
+
+        // ADDI should sign-extend imm6 and forward the updated value.
+        prepare_case();
+        dut.instruction_memory.mem[0] = enc_ldi(3'd1, 8'd5);
+        dut.instruction_memory.mem[1] = enc_i6(OP_ADDI, 3'd1, 3'd1, 6'h3f); // -1 => 4
+        dut.instruction_memory.mem[2] = enc_i6(OP_ADDI, 3'd2, 3'd1, 6'h3e); // -2 => 2
+        run_case(10);
+        report_case(
+            "ADDI sign-extends negative imm6",
+            (dut.register_file.r[1] == 16'd4) && (dut.register_file.r[2] == 16'd2)
         );
 
         $display("cpu_edge_cases_tb: passed=%0d failed=%0d", pass_count, fail_count);

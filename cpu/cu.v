@@ -42,7 +42,7 @@ module cu (
     localparam [3:0] OP_STORE = 4'b0111; // STORE rs, [base + imm6]
     localparam [3:0] OP_CMPEQ = 4'b1000; // CMPEQ rd, rs1, rs2
     localparam [3:0] OP_CMPLT = 4'b1001; // CMPLT rd, rs1, rs2
-    localparam [3:0] OP_ADDI  = 4'b1010; // ADDI rd, rs1, imm6
+    localparam [3:0] OP_ADDI  = 4'b1010; // ADDI rd, rs1, simm6
     localparam [3:0] OP_BNZ   = 4'b1011; // BNZ rd, off9
     localparam [3:0] OP_LDI   = 4'b1100; // LDI rd, imm8
     localparam [3:0] OP_CALL  = 4'b1101; // CALL off12
@@ -260,7 +260,7 @@ module cu (
                 src_a_is_reg = 1'b1;
                 src_a_reg = r1;
                 src_a_value = r1_data;
-                src_b_value = {10'b0, imm6};
+                src_b_value = {{10{imm6[5]}}, imm6};
                 alu_op = 2'b00;
             end
 
@@ -349,7 +349,8 @@ module cu (
         if (executed_opcode == OP_RET) begin
             pc_write_addr = memory_read_data[7:0];
             pc_write = 1'b1;
-        end else if (!stall) begin
+        end 
+        if (!stall) begin
             case (opcode)
                 OP_JMP: begin
                     pc_write_addr = src_a_value[7:0];
@@ -534,6 +535,10 @@ module cu (
                     ip <= 8'b11111111;
 
                 end
+            end else begin
+                r1_data <= register_read_data1;
+                r2_data <= register_read_data2;
+                rd_data <= register_read_data3;
             end
             // execute
             if (!flush_mem) begin

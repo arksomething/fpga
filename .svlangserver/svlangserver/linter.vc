@@ -3,8 +3,10 @@
 +incdir+/home/ark296/projects/fpga/cpu_original/src/gowin_prom
 +incdir+/home/ark296/projects/fpga/cpu_original/test
 +incdir+/home/ark296/projects/fpga/cpu
++incdir+/home/ark296/projects/fpga/cpu/test
 +incdir+/home/ark296/projects/fpga/blink/src
 +incdir+/home/ark296/projects/fpga/cpu_original/src
 +incdir+/home/ark296/projects/fpga/cpu_original/src/gowin_prom
 +incdir+/home/ark296/projects/fpga/cpu_original/test
 +incdir+/home/ark296/projects/fpga/cpu
++incdir+/home/ark296/projects/fpga/cpu/test

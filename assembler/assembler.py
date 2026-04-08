@@ -36,6 +36,7 @@ with open(asm_path, "r", encoding="utf-8") as f:
         "CMPLT": 0b1001_0000_0000_0000,
 
         # --- rd(3) rs1(3) imm6(6) — two registers + 6-bit imm ---
+        # LOAD uses unsigned imm6; ADDI uses signed imm6 (-32..31).
         "LOAD": 0b0110_0000_0000_0000,
         "ADDI": 0b1010_0000_0000_0000,
 
@@ -64,7 +65,7 @@ with open(asm_path, "r", encoding="utf-8") as f:
     breaks = set(["BZ", "BRA", "BNZ"])
     def reg_ok(tok: str, idx: int) -> bool:
         # r7 is SP (CALL/RET); using it as a normal operand breaks the stack model.
-        return tok.startswith("r") and 0 <= idx <= 6
+        return tok.startswith("r") and 0 <= idx <= 7
 
     for i, line in enumerate(ir):  # compute br, bz, bra offsets
         line_fields = line.strip().split(" ")
@@ -122,10 +123,15 @@ with open(asm_path, "r", encoding="utf-8") as f:
             if not reg_ok(line_fields[1], rd) or not reg_ok(line_fields[2], rs1):
                 print("invalid register (r0-r6 only; r7 is SP)")
                 break
-            if imm6 > 63:
-                print("imm6 too big")
-                break
-            cur_instruction |= imm6 | (rs1 << 6) | (rd << 9)
+            if opcode == "LOAD":
+                if imm6 < 0 or imm6 > 63:
+                    print("LOAD imm6 out of range (0..63)")
+                    break
+            else:
+                if imm6 < -32 or imm6 > 31:
+                    print("ADDI imm6 out of range (-32..31)")
+                    break
+            cur_instruction |= (imm6 & 0x3F) | (rs1 << 6) | (rd << 9)
         elif opcode in ro9:
             rd = int(line_fields[1][1:])
             off9 = int(line_fields[2])

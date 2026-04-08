@@ -31,6 +31,8 @@ Current RTL files:
 
 ## ISA
 
+Full **assembly syntax** (labels, encodings, `program.hex`): [`docs/ASSEMBLY_LANGUAGE.md`](docs/ASSEMBLY_LANGUAGE.md).
+
 Instruction width: 16 bits
 
 Arithmetic and data movement:
@@ -46,7 +48,7 @@ Arithmetic and data movement:
 - `0111` `STORE rs, [base]`
   Current implemented form: `MEM[R[base]] = R[rs]`
 - `1010` `ADDI rd, rs1, imm6`
-  `R[rd] = R[rs1] + zero_extend(imm6)`
+  `R[rd] = R[rs1] + sign_extend(imm6)` where `imm6` is `-32..31`
 - `1100` `LDI rd, imm8`
   `R[rd] = zero_extend(imm8)`
   Current encoding uses bits `[8:1]` for `imm8`
